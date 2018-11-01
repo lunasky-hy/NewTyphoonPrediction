@@ -11,6 +11,9 @@ class StatisticTyphoon(object):
     def average(self, area):
         return np.average(self.movement[area[0, 0] : area[1, 0], area[0, 1] : area[1, 1]])
 
+    def getMovement(self):
+        return self.movement
+
     def __getGPVfromFile__(self, fname):
         band_num = 0
         
