@@ -1,0 +1,65 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>9fc75d8a-5ab1-41b8-934b-b73b71f9de18</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>Main.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>TyphoonPrediction</Name>
+    <RootNamespace>GetTyhoonDate</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DataProcessing\ConvertGRIB2.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataProcessing\CovertTyphoonInfo.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataProcessing\functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataProcessing\GetTyhoonDate.py" />
+    <Compile Include="DataProcessing\GRIB2.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataProcessing\ReadJSON.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SimpleModel\ModelMain.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SimpleModel\StatisticTyphoon.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataProcessing\" />
+    <Folder Include="SimpleModel\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
