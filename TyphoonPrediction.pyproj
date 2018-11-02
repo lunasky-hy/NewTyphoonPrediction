@@ -45,6 +45,9 @@
     <Compile Include="SimpleModel\ModelMain.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SimpleModel\ProbabilityField.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SimpleModel\StatisticTyphoon.py">
       <SubType>Code</SubType>
     </Compile>
