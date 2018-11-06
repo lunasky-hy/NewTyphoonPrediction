@@ -25,13 +25,10 @@ class ModelMain(object):
         X = np.arange(120, 150.1, 0.1)
         Y = np.arange(47.6, 22.3, -0.1)
         values = np.zeros([len(Y), len(X)])
-        full = 0
 
         for row in range(len(Y)):
             for colum in range(len(X)):
                 values[row, colum] = self.field.calc(Y[row], X[colum])
-                full += values[row, colum]
-        print(full)
 
         plt.imshow(values, cmap = 'Greens')
         plt.xticks([0, len(X) / 2, len(X) - 1], [120, 120 + 0.1 * ((len(X) - 1) / 2), 150])
