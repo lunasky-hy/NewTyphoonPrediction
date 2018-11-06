@@ -3,8 +3,8 @@ import numpy as np
 
 class StatisticTyphoon(object):
     """description of class"""
-    def __init__(self, typhoon_dict):
-        #self.file = self.__getGPVfromFile__(typhoon_dict['GPVfile'])
+    def __init__(self, typhoon_dict, TARGET_BAND_NUM):
+        self.file = self.__getGPVfromFile__(typhoon_dict['GPVfile'], TARGET_BAND_NUM)
         self.position = [typhoon_dict['latitude'], typhoon_dict['longitude']] 
         self.movement = typhoon_dict['movement']
 
@@ -14,12 +14,16 @@ class StatisticTyphoon(object):
     def getMovement(self):
         return self.movement
 
-    def __getGPVfromFile__(self, fname):
-        band_num = 0
+    def __getGPVfromFile__(self, fname, TARGET_BAND_NUM):
         
         fp = open(fname, 'r')
         jsondata = json.load(fp)
 
-        self.band_meta = jsondata[str(band_num)]['metadata']['']       # 1000hPa高度
-        self.data = np.array(jsondata[str(band_num)]['GPV'])
+        self.dataset = []
+        for TARGET in TARGET_BAND_NUM:
+            for datas in jsondata.values():
+                if datas['band'] == TARGET:
+                    info = { 'Pressure' : datas['description'], 'Element' : datas['metadata']['']['GRIB_COMMENT'], 'Dataset' : np.array(datas['GPV'])}
+                    self.dataset.append(info)
+                    break
         fp.close()

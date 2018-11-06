@@ -7,6 +7,7 @@ import EuclidModel.StatisticTyphoon as typ
 import EuclidModel.ProbabilityField as pf
 
 class ModelMain(object):
+    # OK
     def __init__(self, GPVfile, position):
         if not (22.4 < float(position[0]) and float(position[0]) < 47.6 and 120 < float(position[1]) and float(position[1]) < 150):
             exit()
@@ -57,7 +58,7 @@ class ModelMain(object):
             if distance > 300: # 中心が半径300kmの円の外側だったら飛ばす
                 continue
             
-            self.statisticTyphoons.append( typ.StatisticTyphoon(info) )
+            self.statisticTyphoons.append( typ.StatisticTyphoon(info, self.target_bandnum) )
 
         print('Sample : ' + str(len(self.statisticTyphoons)))
 
@@ -66,7 +67,8 @@ class ModelMain(object):
 
         return ave, var
 
-
+    
+    # OK
     def __loadGPV__(self, file, TARGET_BAND):
         # register drivers
         gdal.AllRegister()
@@ -79,6 +81,8 @@ class ModelMain(object):
         bandInfo_dict = gdal.Info(dataset, format='json')
         # バンド情報格納配列を初期化
         self.bandset = []
+        # バンド番号の保持 -> 過去台風データ取り出しに使用
+        self.target_bandnum = []
 
         # 各バンド情報からTARGET_BANDにあう情報を見つける
         for info in bandInfo_dict['bands']:
@@ -92,9 +96,11 @@ class ModelMain(object):
                     data_dict['Pressure'] = info['description']
                     data_dict['Element'] = meta['GRIB_COMMENT']
                     # 格子点データをndarrayにして入れる
+                    self.target_bandnum.append(int(info['band']))
                     data_dict['Dataset'] = dataset.GetRasterBand(info['band']).ReadAsArray()
                     self.bandset.append(data_dict)
 
+    # OK
     def __GlobalDistance__(self, pos1, pos2):
         R = 6378.1370
         
