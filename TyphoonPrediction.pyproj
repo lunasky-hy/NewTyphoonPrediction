@@ -36,6 +36,11 @@
     <Compile Include="DataProcessing\GRIB2.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EuclidModel\Model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EuclidModel\ProbabilityField.py" />
+    <Compile Include="EuclidModel\StatisticTyphoon.py" />
     <Compile Include="Main.py">
       <SubType>Code</SubType>
     </Compile>
@@ -54,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataProcessing\" />
+    <Folder Include="EuclidModel\" />
     <Folder Include="SimpleModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
