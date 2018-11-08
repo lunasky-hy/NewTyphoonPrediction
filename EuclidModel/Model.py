@@ -21,6 +21,7 @@ class ModelMain(object):
         self.__getProbabilityField__()
         print('Finish Processing')
 
+    # グラフの描画
     def plotGraph(self):        
         fig = plt.figure()
         
@@ -40,13 +41,13 @@ class ModelMain(object):
         plt.yticks([0, len(Y) / 2, len(Y) - 1], [47.6, 47.6 - 0.1 * ((len(X) - 1) / 2), 22.3])
         plt.show()
 
-        
+    # 確率場の算出用
     def __getProbabilityField__(self):
         ave, var = self.__getMoveStat__()
         ave = [ave[0] + self.position[0], ave[1] + self.position[1]]
         self.field = pf.ProbabilityField(ave, var)
 
-
+    # 過去台風のロード部分 - OK
     def __getStatisticTyphoon__(self):
         fp = open('./typhoon/TyphoonInfo.json', 'r')
         jsondata = json.load(fp)
@@ -62,13 +63,13 @@ class ModelMain(object):
 
         print('Sample : ' + str(len(self.statisticTyphoons)))
 
-
+    # 平均,分散の算出
     def __getMoveStat__(self):
-
+        
         return ave, var
 
     
-    # OK
+    # GPV値のロード - OK
     def __loadGPV__(self, file, TARGET_BAND):
         # register drivers
         gdal.AllRegister()
@@ -97,10 +98,10 @@ class ModelMain(object):
                     data_dict['Element'] = meta['GRIB_COMMENT']
                     # 格子点データをndarrayにして入れる
                     self.target_bandnum.append(int(info['band']))
-                    data_dict['Dataset'] = dataset.GetRasterBand(info['band']).ReadAsArray()
+                    data_dict['Value'] = self.__filtering__(dataset.GetRasterBand(info['band']).ReadAsArray())
                     self.bandset.append(data_dict)
 
-    # OK
+    # 2点間の距離の算出 - OK
     def __GlobalDistance__(self, pos1, pos2):
         R = 6378.1370
         
@@ -113,3 +114,47 @@ class ModelMain(object):
         averageLong = (long1 - long2) / 2
 
         return R * 2 * math.asin( math.sqrt(math.pow( math.sin(averageLat), 2) + math.cos(lat1) * math.cos(lat2) * math.pow( math.sin(averageLong), 2)))
+
+    # フィルタリング - OK
+    def __filtering__(self, datas):
+        FILTERING_EDGE = [[47, 120], [23, 150]] # 北緯47 東経120からフィルタリング開始 ※※※※※※過去データと統一すること！※※※※※※※
+        FILTERING_INTERVAL = 1 # 単位:°
+        N = 3 # 中心の周囲Nマスを参照
+
+        ConvertedLatitude = np.arange(FILTERING_EDGE[0][0], FILTERING_EDGE[1][0] - FILTERING_INTERVAL, -1 * FILTERING_INTERVAL)
+        ConvertedLongitude = np.arange(FILTERING_EDGE[0][1], FILTERING_EDGE[1][1] + FILTERING_INTERVAL, FILTERING_INTERVAL)
+
+        filtedValues = np.zeros([len(ConvertedLatitude), len(ConvertedLongitude)])
+
+        for latIndex, latValue in enumerate(ConvertedLatitude):
+            for longIndex, longValue in enumerate(ConvertedLongitude):
+
+                original = self.__calcGPVIndexes__(latValue, longValue)
+                filtedValues[latIndex, longIndex] = self.__Gaussian__(datas, original, N)
+
+        return filtedValues
+
+    # 元データのインデックス番号を得る - OK
+    def __calcGPVIndexes__(self, lat, long):
+        latIndex = int(round((lat - 47.6) / (- 0.1)))
+        longIndex = int(round((long - 120.0) / 0.125))
+        return [latIndex, longIndex]
+
+    # ガウシアンフィルタをかける - OK
+    def __Gaussian__(self, datas, indexes, N):
+        value = 0
+        for y in np.arange(-N, N + 1, 1):
+            for x in np.arange(-N, N + 1, 1):
+                distance = np.sqrt(x ** 2 + y ** 2)
+                K = 1.0 / (2.0 * 3.14) * np.exp(- distance / 2)
+
+                # 領域範囲外の場合の処理
+                yaxis = indexes[0] - y
+                xaxis = indexes[1] - x
+                if yaxis < 0 : yaxis = 0
+                elif yaxis > 252 : yaxis = 252
+                if xaxis < 0 : xaxis = 0
+                elif xaxis > 240 : xaxis = 240
+
+                value += K * datas[yaxis, xaxis]
+        return value
