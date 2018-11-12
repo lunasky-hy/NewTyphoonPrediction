@@ -4,6 +4,7 @@ import json
 import math
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.basemap import Basemap
 import PearsonModel.StatisticTyphoon as typ
 import PearsonModel.ProbabilityField as pf
 from PearsonModel.Constant import Const
@@ -31,8 +32,8 @@ class ModelMain(object):
     def plotGraph(self):        
         fig = plt.figure()
         
-        X = np.arange(120, 150.1, 0.1)
-        Y = np.arange(47.6, 22.3, -0.1)
+        X = np.arange(Const.PLOT_START_LONG, Const.PLOT_END_LONG + Const.PLOT_INTARVAL_LONG, Const.PLOT_INTARVAL_LONG)
+        Y = np.arange(Const.PLOT_START_LAT, Const.PLOT_END_LAT + Const.PLOT_INTARVAL_LAT, Const.PLOT_INTARVAL_LAT)
         values = np.zeros([len(Y), len(X)])
         full = 0
 
@@ -42,9 +43,21 @@ class ModelMain(object):
                 full += values[row, colum]
         print(full)
 
-        plt.imshow(values, cmap = 'Greens')
-        plt.xticks([0, len(X) / 2, len(X) - 1], [120, 120 + 0.1 * ((len(X) - 1) / 2), 150])
-        plt.yticks([0, len(Y) / 2, len(Y) - 1], [47.6, 47.6 - 0.1 * ((len(X) - 1) / 2), 22.3])
+        m = Basemap(projection = 'merc',
+                 resolution = 'l',
+                 llcrnrlon = Const.PLOT_START_LONG,
+                 llcrnrlat = Const.PLOT_START_LAT,
+                 urcrnrlon = Const.PLOT_END_LONG,
+                 urcrnrlat = Const.PLOT_END_LAT)
+        m.drawcoastlines() 
+        m.drawstates()
+        
+        m.imshow(values, cmap = 'Reds')
+        # 5度ごとに緯度線を描く
+        m.drawparallels(np.arange(Const.PLOT_START_LAT, Const.PLOT_END_LAT, 5), labels = [1, 0, 0, 0], fontsize=10)
+        # 5度ごとに経度線を描く
+        m.drawmeridians(np.arange(Const.PLOT_START_LONG, Const.PLOT_END_LONG, 5), labels = [0, 0, 0, 1], fontsize=10)
+
         plt.show()
 
     # 確率場の算出用
