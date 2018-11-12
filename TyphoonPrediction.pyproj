@@ -50,6 +50,10 @@
     <Compile Include="DataProcessing\ReadJSON.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PearsonModel\Constant.py" />
+    <Compile Include="PearsonModel\Model.py" />
+    <Compile Include="PearsonModel\ProbabilityField.py" />
+    <Compile Include="PearsonModel\StatisticTyphoon.py" />
     <Compile Include="SimpleModel\ModelMain.py">
       <SubType>Code</SubType>
     </Compile>
@@ -63,6 +67,7 @@
   <ItemGroup>
     <Folder Include="DataProcessing\" />
     <Folder Include="EuclidModel\" />
+    <Folder Include="C:\Users\H.Yamada\source\repos\TyphoonPrediction\GetTyhoonDate\PearsonModel\" />
     <Folder Include="SimpleModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
