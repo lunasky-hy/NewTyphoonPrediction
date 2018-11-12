@@ -1,8 +1,9 @@
 ##### 標準
 
 ##### 作ったやつ
-# import DataProcessing.CovertTyphoonInfo as ti
+# import DataProcessing.CovertTyphoonInfo as SModel
 import EuclidModel.Model as SModel
+#import SimpleModel.ModelMain as SModel
 """
 import DataProcessing.ReadJSON
 import DataProcessing.functions

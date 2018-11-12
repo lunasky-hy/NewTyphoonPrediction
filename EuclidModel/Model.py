@@ -3,8 +3,10 @@ import numpy as np
 import json
 import math
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import EuclidModel.StatisticTyphoon as typ
 import EuclidModel.ProbabilityField as pf
+from EuclidModel.Constant import Const
 
 class ModelMain(object):
     # OK
@@ -12,12 +14,16 @@ class ModelMain(object):
         if not (22.4 < float(position[0]) and float(position[0]) < 47.6 and 120 < float(position[1]) and float(position[1]) < 150):
             exit()
 
-        target_band = [ [100000, 'Geopotential'], [50000, 'u-'], [50000, 'v-'] ]
-        self.__loadGPV__(GPVfile, target_band)
+        print("Loading")
+        self.__loadGPV__(GPVfile, Const.TARGET_BAND)
+        print("Loading... Complete")
         self.position = position
 
     def processing(self):
+        print("Statistic Typhoon Loading...")
         self.__getStatisticTyphoon__()
+        print("Statistic Typhoon Loading... Complete")
+        print("Create Probability Field...")
         self.__getProbabilityField__()
         print('Finish Processing')
 
@@ -56,19 +62,44 @@ class ModelMain(object):
         del(jsondata['comment'])
         for index, info in jsondata.items():
             distance = self.__GlobalDistance__(self.position, [info['latitude'], info['longitude']])
-            if distance > 300: # 中心が半径300kmの円の外側だったら飛ばす
+            if distance > Const.STATISTIC_DISTANCE: # 中心が半径300kmの円の外側だったら飛ばす
                 continue
             
             self.statisticTyphoons.append( typ.StatisticTyphoon(info, self.target_bandnum) )
+            print(str(len(self.statisticTyphoons)) + ':' + str(info['GPVfile']))
 
         print('Sample : ' + str(len(self.statisticTyphoons)))
 
-    # 平均,分散の算出
+    # 平均,分散の算出 - OK
     def __getMoveStat__(self):
+        # 比較する範囲を設定
+        INDEXES = []
+        for latIndex, latValue in enumerate(Const.CONVERTED_LATITUDE):
+            for longIndex, longValue in enumerate(Const.CONVERTED_LONGITUDE):
+                if self.__GlobalDistance__(self.position, [latValue, longValue]) < Const.COMPARISION_DISTANCE:
+                    INDEXES.append([latIndex, longIndex])
         
+        total = 0.0
+        # 比較し係数を過去モデルに保存
+        for index, smodel in enumerate(self.statisticTyphoons):
+            for bandIndex in range(len(smodel.dataset)):
+                smodel.calcAnalogy(self.bandset, bandIndex, INDEXES)
+            total += smodel.aveAnalogy()
+            print(str(index) + " : " + str(smodel.getAveAnalogy() * 100) + '%')
+
+        ave = [0.0, 0.0]
+        lat = []
+        long = []
+        for smodel in self.statisticTyphoons:
+            move = smodel.getMovement()
+            lat.append(move[0])
+            long.append(move[1])
+            ave[0] += (smodel.getAveAnalogy() / total) * move[0]
+            ave[1] += (smodel.getAveAnalogy() / total) * move[1]
+
+        var = [np.var(lat), np.var(long)]
         return ave, var
 
-    
     # GPV値のロード - OK
     def __loadGPV__(self, file, TARGET_BAND):
         # register drivers
@@ -117,21 +148,16 @@ class ModelMain(object):
 
     # フィルタリング - OK
     def __filtering__(self, datas):
-        FILTERING_EDGE = [[47, 120], [23, 150]] # 北緯47 東経120からフィルタリング開始 ※※※※※※過去データと統一すること！※※※※※※※
-        FILTERING_INTERVAL = 1 # 単位:°
-        N = 3 # 中心の周囲Nマスを参照
 
-        ConvertedLatitude = np.arange(FILTERING_EDGE[0][0], FILTERING_EDGE[1][0] - FILTERING_INTERVAL, -1 * FILTERING_INTERVAL)
-        ConvertedLongitude = np.arange(FILTERING_EDGE[0][1], FILTERING_EDGE[1][1] + FILTERING_INTERVAL, FILTERING_INTERVAL)
+        filtedValues = np.zeros([len(Const.CONVERTED_LATITUDE), len(Const.CONVERTED_LONGITUDE)])
 
-        filtedValues = np.zeros([len(ConvertedLatitude), len(ConvertedLongitude)])
-
-        for latIndex, latValue in enumerate(ConvertedLatitude):
-            for longIndex, longValue in enumerate(ConvertedLongitude):
+        for latIndex, latValue in enumerate(Const.CONVERTED_LATITUDE):
+            for longIndex, longValue in enumerate(Const.CONVERTED_LONGITUDE):
 
                 original = self.__calcGPVIndexes__(latValue, longValue)
-                filtedValues[latIndex, longIndex] = self.__Gaussian__(datas, original, N)
+                filtedValues[latIndex, longIndex] = self.__Gaussian__(datas, original, Const.N)
 
+        #self.__VisualFiltering__(datas, filtedValues)
         return filtedValues
 
     # 元データのインデックス番号を得る - OK
@@ -151,10 +177,28 @@ class ModelMain(object):
                 # 領域範囲外の場合の処理
                 yaxis = indexes[0] - y
                 xaxis = indexes[1] - x
-                if yaxis < 0 : yaxis = 0
-                elif yaxis > 252 : yaxis = 252
-                if xaxis < 0 : xaxis = 0
-                elif xaxis > 240 : xaxis = 240
-
+                if yaxis < 0:
+                    yaxis = 0
+                elif yaxis > 252:
+                    yaxis = 252
+                if xaxis < 0:
+                    xaxis = 0
+                elif xaxis > 240:
+                    xaxis = 240
                 value += K * datas[yaxis, xaxis]
         return value
+
+    # フィルタを可視化する - OK
+    def __VisualFiltering__(self, datas, fileted):
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(2, 1, 1, projection='3d')
+        bx = fig.add_subplot(2, 1, 2, projection='3d')
+        
+        X1, Y1 = np.meshgrid(np.arange(120, 150.125, 0.125), np.arange(47.6, 22.3, -0.1))
+        X2, Y2 = np.meshgrid(Const.CONVERTED_LONGITUDE,Const.CONVERTED_LATITUDE)
+
+        ax.plot_surface(X1, Y1, datas, cmap='bwr')
+        bx.plot_surface(X2, Y2, fileted, cmap='bwr')
+
+        plt.show()

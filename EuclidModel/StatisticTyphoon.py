@@ -1,5 +1,6 @@
 import json
 import numpy as np
+from EuclidModel.Constant import Const
 
 class StatisticTyphoon(object):
     """description of class"""
@@ -7,12 +8,26 @@ class StatisticTyphoon(object):
         self.file = self.__getGPVfromFile__(typhoon_dict['GPVfile'], TARGET_BAND_NUM)
         self.position = [typhoon_dict['latitude'], typhoon_dict['longitude']] 
         self.movement = typhoon_dict['movement']
-
-    def average(self, area):
-        return np.average(self.movement[area[0, 0] : area[1, 0], area[0, 1] : area[1, 1]])
+        self.analogies = np.zeros(len(Const.TARGET_BAND))
 
     def getMovement(self):
         return self.movement
+
+    # 類似度の計算 - OK
+    def calcAnalogy(self, data, bandIndex, INDEXES):
+        var = 0
+        for index in INDEXES:
+            var += (self.dataset[bandIndex]['Values'][ index[0], index[1] ] - data[bandIndex]['Value'][ index[0], index[1] ]) ** 2.0
+
+        self.analogies[bandIndex] = np.abs(1 / (1 + np.sqrt(var)))
+
+    # 類似度の平均の算出 - OK
+    def aveAnalogy(self):
+        self.analogy = np.average(self.analogies)
+        return self.analogy
+
+    def getAveAnalogy(self):
+        return self.analogy
 
     # GPVを取得 - OK
     def __getGPVfromFile__(self, fname, TARGET_BAND_NUM):
@@ -24,27 +39,21 @@ class StatisticTyphoon(object):
         for TARGET in TARGET_BAND_NUM:
             for datas in jsondata.values():
                 if datas['band'] == TARGET:
-                    info = { 'Pressure' : datas['description'], 'Element' : datas['metadata']['']['GRIB_COMMENT'], 'Values' : np.array(datas['GPV'])}
+                    info = { 'Pressure' : datas['description'], 'Element' : datas['metadata']['']['GRIB_COMMENT'], 'Values' : self.filtering(np.array(datas['GPV']))}
                     self.dataset.append(info)
                     break
         fp.close()
 
     # 格子間隔のフィルタリング - OK
     def filtering(self, dataset):
-        FILTERING_EDGE = [[47, 120], [23, 150]] # 北緯47 東経120からフィルタリング開始
-        FILTERING_INTERVAL = 1 # 単位:°
-        N = 3 # 中心の周囲Nマスを参照
 
-        ConvertedLatitude = np.arange(FILTERING_EDGE[0][0], FILTERING_EDGE[1][0] - FILTERING_INTERVAL, -1 * FILTERING_INTERVAL)
-        ConvertedLongitude = np.arange(FILTERING_EDGE[0][1], FILTERING_EDGE[1][1] + FILTERING_INTERVAL, FILTERING_INTERVAL)
+        filtedValues = np.zeros([len(Const.CONVERTED_LATITUDE), len(Const.CONVERTED_LONGITUDE)])
 
-        filtedValues = np.zeros([len(ConvertedLatitude), len(ConvertedLongitude)])
-
-        for latIndex, latValue in enumerate(ConvertedLatitude):
-            for longIndex, longValue in enumerate(ConvertedLongitude):
+        for latIndex, latValue in enumerate(Const.CONVERTED_LATITUDE):
+            for longIndex, longValue in enumerate(Const.CONVERTED_LONGITUDE):
 
                 original = self.__calcGPVIndexes__(latValue, longValue)
-                filtedValues[latIndex, longIndex] = self.__Gaussian__(dataset, original, N)
+                filtedValues[latIndex, longIndex] = self.__Gaussian__(dataset, original, Const.N)
 
         return filtedValues
 
@@ -70,7 +79,7 @@ class StatisticTyphoon(object):
                 if xaxis < 0 : xaxis = 0
                 elif xaxis > 240 : xaxis = 240
 
-                value += K * dataset['Values'][yaxis, xaxis]
+                value += K * dataset[yaxis, xaxis]
 
         return value
 
