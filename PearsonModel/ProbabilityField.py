@@ -8,8 +8,10 @@ class ProbabilityField():
         self.long_var = var[1]
 
     def calc(self, lat, long):
-        value = 1 / ( 
-            2.0 * 3.141592 * np.sqrt(self.lat_var * self.long_var)
+        SIGMA = self.lat_var * self.long_var
+
+        value = 1.0 / ( 
+            2.0 * 3.141592 * np.sqrt(SIGMA)
             ) * np.exp(
                 -0.5 * (((lat - self.lat_ave)**2.0) / self.lat_var + ((long - self.long_ave)**2.0) / self.long_var)
                 )

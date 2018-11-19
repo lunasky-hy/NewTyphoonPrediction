@@ -57,6 +57,11 @@ class ModelMain(object):
         m.drawparallels(np.arange(Const.PLOT_START_LAT, Const.PLOT_END_LAT, 5), labels = [1, 0, 0, 0], fontsize=10)
         # 5度ごとに経度線を描く
         m.drawmeridians(np.arange(Const.PLOT_START_LONG, Const.PLOT_END_LONG, 5), labels = [0, 0, 0, 1], fontsize=10)
+        
+        x, y = m(135.0, 23.7)
+        m.plot(x, y, 'x', markersize = 5)
+
+        plt.title("Euclid Model Probability Field")
 
         plt.show()
 
@@ -101,16 +106,20 @@ class ModelMain(object):
             print(str(index) + " : " + str(smodel.getAveAnalogy() * 100) + '%')
 
         ave = [0.0, 0.0]
-        lat = []
-        long = []
+        var = [0.0, 0.0]
         for smodel in self.statisticTyphoons:
             move = smodel.getMovement()
-            lat.append(move[0])
-            long.append(move[1])
             ave[0] += (smodel.getAveAnalogy() / total) * move[0]
             ave[1] += (smodel.getAveAnalogy() / total) * move[1]
 
-        var = [np.var(lat), np.var(long)]
+        for smodel in self.statisticTyphoons:
+            move = smodel.getMovement()
+            var[0] = (move[0] - ave[0]) ** 2.0
+            var[1] = (move[1] - ave[1]) ** 2.0
+
+        var[0] = var[0] / len(self.statisticTyphoons)
+        var[1] = var[1] / len(self.statisticTyphoons)
+
         return ave, var
 
     # GPV値のロード - OK

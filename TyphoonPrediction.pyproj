@@ -68,6 +68,7 @@
     <Folder Include="DataProcessing\" />
     <Folder Include="EuclidModel\" />
     <Folder Include="C:\Users\H.Yamada\source\repos\TyphoonPrediction\GetTyhoonDate\PearsonModel\" />
+    <Folder Include="PearsonModel\" />
     <Folder Include="SimpleModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
