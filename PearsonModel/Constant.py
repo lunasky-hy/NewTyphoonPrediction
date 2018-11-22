@@ -3,7 +3,7 @@ import numpy as np
 
 class Const(object):
 
-    TARGET_BAND = [ [100000, 'Geopotential'], [50000, 'u-'], [50000, 'v-'] ]
+    TARGET_BAND = [ [50000, 'Geopotential'], [30000, 'u-'], [30000, 'v-'] ]
 
     # 過去台風の取り出し
     STATISTIC_DISTANCE = 300 # 現在の台風の中心から300km以内

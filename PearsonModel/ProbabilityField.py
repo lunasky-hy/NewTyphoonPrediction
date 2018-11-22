@@ -1,4 +1,5 @@
-import numpy as np
+#import numpy as np
+import math
 
 class ProbabilityField():
     def __init__(self, ave, var):
@@ -8,11 +9,8 @@ class ProbabilityField():
         self.long_var = var[1]
 
     def calc(self, lat, long):
-        SIGMA = self.lat_var * self.long_var
-
-        value = 1.0 / ( 
-            2.0 * 3.141592 * np.sqrt(SIGMA)
-            ) * np.exp(
-                -0.5 * (((lat - self.lat_ave)**2.0) / self.lat_var + ((long - self.long_ave)**2.0) / self.long_var)
-                )
-        return value #if value > 0.01 else 0
+        K =  1.0 / ( 2.0 * 3.141592 * math.sqrt(self.lat_var * self.long_var))
+        latv = (lat - self.lat_ave) ** 2
+        longv = (long - self.long_ave) ** 2
+        value = K * math.exp(-1.0 / 2.0 * (latv / self.lat_var + longv / self.long_var))
+        return value #if value > 0.001 else 0

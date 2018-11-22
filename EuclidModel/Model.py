@@ -39,7 +39,7 @@ class ModelMain(object):
 
         for row in range(len(Y)):
             for colum in range(len(X)):
-                values[row, colum] = self.field.calc(Y[row], X[colum])
+                values[row, colum] = self.field.calc(Y[row], X[colum]) * Const.PLOT_INTARVAL_LONG * Const.PLOT_INTARVAL_LAT
                 full += values[row, colum]
         print(full)
 

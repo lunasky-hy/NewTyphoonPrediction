@@ -37,10 +37,10 @@ class ModelMain(object):
         values = np.zeros([len(Y), len(X)])
         full = 0
 
-        for row in range(len(Y)):
-            for colum in range(len(X)):
-                values[row, colum] = self.field.calc(Y[row], X[colum])
-                full += values[row, colum]
+        for lat in range(len(Y)):
+            for long in range(len(X)):
+                values[lat, long] = self.field.calc(Y[lat], X[long]) * Const.PLOT_INTARVAL_LONG * Const.PLOT_INTARVAL_LAT
+                full += values[lat, long]
         print(full)
 
         m = Basemap(projection = 'merc',
@@ -87,6 +87,7 @@ class ModelMain(object):
 
         print('Sample : ' + str(len(self.statisticTyphoons)))
 
+
     # 平均,分散の算出 - OK
     def __getMoveStat__(self):
         # 比較する範囲を設定
@@ -102,6 +103,7 @@ class ModelMain(object):
             for bandIndex in range(len(smodel.dataset)):
                 smodel.calcAnalogy(self.bandset, bandIndex, INDEXES)
             total += smodel.aveAnalogy()
+            #total += np.exp(smodel.aveAnalogy() * 10)
             print(str(index) + " : " + str(smodel.getAveAnalogy() * 100) + '%')
 
         ave = [0.0, 0.0]
@@ -110,17 +112,19 @@ class ModelMain(object):
             move = smodel.getMovement()
             ave[0] += (smodel.getAveAnalogy() / total) * move[0]
             ave[1] += (smodel.getAveAnalogy() / total) * move[1]
+            # ave[0] += (np.exp(smodel.getAveAnalogy() * 10) / total) * move[0]
+            # ave[1] += (np.exp(smodel.getAveAnalogy() * 10) / total) * move[1]
 
         for smodel in self.statisticTyphoons:
             move = smodel.getMovement()
-            var[0] = (move[0] - ave[0]) ** 2.0
-            var[1] = (move[1] - ave[1]) ** 2.0
-
+            var[0] += (move[0] - ave[0]) ** 2.0
+            var[1] += (move[1] - ave[1]) ** 2.0
 
         var[0] = var[0] / len(self.statisticTyphoons)
         var[1] = var[1] / len(self.statisticTyphoons)
 
         return ave, var
+
 
     # GPV値のロード - OK
     def __loadGPV__(self, file, TARGET_BAND):
