@@ -14,3 +14,9 @@ class ProbabilityField():
         longv = (long - self.long_ave) ** 2
         value = K * math.exp(-1.0 / 2.0 * (latv / self.lat_var + longv / self.long_var))
         return value #if value > 0.001 else 0
+
+    def getAverage(self):
+        return [self.lat_ave, self.long_ave]
+
+    def getVariance(self):
+        return [self.lat_var, self.long_var]

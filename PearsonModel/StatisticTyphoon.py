@@ -4,8 +4,9 @@ from PearsonModel.Constant import Const
 
 class StatisticTyphoon(object):
     """description of class"""
-    def __init__(self, typhoon_dict, TARGET_BAND_NUM):
-        self.file = self.__getGPVfromFile__(typhoon_dict['GPVfile'], TARGET_BAND_NUM)
+    def __init__(self, typhoon_dict, TARGET_BAND_NUM, flag = True):
+        if flag:
+            self.file = self.__getGPVfromFile__(typhoon_dict['GPVfile'], TARGET_BAND_NUM)
         self.position = [typhoon_dict['latitude'], typhoon_dict['longitude']] 
         self.movement = typhoon_dict['movement']
         self.analogies = np.zeros(len(Const.TARGET_BAND))

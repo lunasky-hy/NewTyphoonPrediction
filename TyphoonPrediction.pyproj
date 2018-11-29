@@ -50,6 +50,9 @@
     <Compile Include="DataProcessing\ReadJSON.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PearsonModel\AnalysisPredictErrorModel.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PearsonModel\Constant.py" />
     <Compile Include="PearsonModel\Model.py" />
     <Compile Include="PearsonModel\ProbabilityField.py" />
