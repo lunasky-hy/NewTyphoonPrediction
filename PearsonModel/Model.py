@@ -68,6 +68,12 @@ class ModelMain(object):
     def getPredictPosition(self):
         return self.field.getAverage()
 
+    def getSampleDataNum(self):
+        return self.sampleData
+    
+    def calcProbability(self, y, x):
+        return self.field.calc(y, x) * Const.PLOT_INTARVAL_LONG * Const.PLOT_INTARVAL_LAT
+
     # 確率場の算出用
     def __getProbabilityField__(self):
         ave, var = self.__getMoveStat__()
@@ -90,6 +96,7 @@ class ModelMain(object):
             print(str(len(self.statisticTyphoons)) + ':' + str(info['GPVfile']))
 
         print('Sample : ' + str(len(self.statisticTyphoons)))
+        self.sampleData = len(self.statisticTyphoons)
 
 
     # 平均,分散の算出 - OK

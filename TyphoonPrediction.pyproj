@@ -36,6 +36,9 @@
     <Compile Include="DataProcessing\GRIB2.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DataProcessing\ModelErrorAnalizing.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="EuclidModel\Constant.py">
       <SubType>Code</SubType>
     </Compile>
@@ -44,6 +47,9 @@
     </Compile>
     <Compile Include="EuclidModel\ProbabilityField.py" />
     <Compile Include="EuclidModel\StatisticTyphoon.py" />
+    <Compile Include="General\PredictMap.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Main.py">
       <SubType>Code</SubType>
     </Compile>
@@ -71,6 +77,7 @@
     <Folder Include="DataProcessing\" />
     <Folder Include="EuclidModel\" />
     <Folder Include="C:\Users\H.Yamada\source\repos\TyphoonPrediction\GetTyhoonDate\PearsonModel\" />
+    <Folder Include="General\" />
     <Folder Include="PearsonModel\" />
     <Folder Include="SimpleModel\" />
   </ItemGroup>

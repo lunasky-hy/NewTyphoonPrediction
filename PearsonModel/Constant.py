@@ -11,7 +11,7 @@ class Const(object):
 
     # フィルタリング
     FILTERING_EDGE = [[47, 120], [23, 150]]     # 北緯47 東経120からフィルタリング開始
-    FILTERING_INTERVAL = 1  # 単位:°
+    FILTERING_INTERVAL = 2  # 単位:°
     N = 3                   # 中心の周囲Nマスを参照
     
     CONVERTED_LATITUDE = np.arange(FILTERING_EDGE[0][0], FILTERING_EDGE[1][0] - FILTERING_INTERVAL, -1 * FILTERING_INTERVAL)
