@@ -11,14 +11,15 @@ from EuclidModel.Constant import Const
 
 class ModelMain(object):
     # OK
-    def __init__(self, GPVfile, position):
+    def __init__(self, GPVfile, position, init_time = 0):
         if not (22.4 < float(position[0]) and float(position[0]) < 47.6 and 120 < float(position[1]) and float(position[1]) < 150):
             exit()
-
+            
+        self.position = position
+        self.time = init_time
         print("Loading")
         self.__loadGPV__(GPVfile, Const.TARGET_BAND)
         print("Loading... Complete")
-        self.position = position
 
     def processing(self):
         print("Statistic Typhoon Loading...")
@@ -65,11 +66,25 @@ class ModelMain(object):
 
         plt.show()
 
+    
+    def getPredictPosition(self):
+        return self.field.getAverage()
+
+    def getPredictMovement(self):
+        return self.movement
+
+    def getSampleDataNum(self):
+        return self.sampleData
+    
+    def calcProbability(self, y, x):
+        return self.field.calc(y, x) * Const.PLOT_INTARVAL_LONG * Const.PLOT_INTARVAL_LAT
+
     # 確率場の算出用
     def __getProbabilityField__(self):
         ave, var = self.__getMoveStat__()
-        ave = [ave[0] + self.position[0], ave[1] + self.position[1]]
-        self.field = pf.ProbabilityField(ave, var)
+        self.movement = ave
+        prediction = [ave[0] + self.position[0], ave[1] + self.position[1]]
+        self.field = pf.ProbabilityField(prediction, var)
 
     # 過去台風のロード部分 - OK
     def __getStatisticTyphoon__(self):
@@ -137,12 +152,17 @@ class ModelMain(object):
         self.bandset = []
         # バンド番号の保持 -> 過去台風データ取り出しに使用
         self.target_bandnum = []
-
+        
         # 各バンド情報からTARGET_BANDにあう情報を見つける
         for info in bandInfo_dict['bands']:
             meta = info['metadata']['']
-            if meta['GRIB_FORECAST_SECONDS'] != '0 sec':
-                break
+            if meta['GRIB_FORECAST_SECONDS'] == '0 sec':
+                for TARGET in TARGET_BAND:
+                    if str(TARGET[0]) in info['description'] and TARGET[1] in meta['GRIB_COMMENT']:
+                        self.target_bandnum.append(int(info['band']))
+
+            if meta['GRIB_FORECAST_SECONDS'] != str(self.time * 3600) + ' sec':
+                continue
             # ターゲットバンドの探索
             for TARGET in TARGET_BAND:
                 if str(TARGET[0]) in info['description'] and TARGET[1] in meta['GRIB_COMMENT']:
@@ -150,7 +170,6 @@ class ModelMain(object):
                     data_dict['Pressure'] = info['description']
                     data_dict['Element'] = meta['GRIB_COMMENT']
                     # 格子点データをndarrayにして入れる
-                    self.target_bandnum.append(int(info['band']))
                     data_dict['Value'] = self.__filtering__(dataset.GetRasterBand(info['band']).ReadAsArray())
                     self.bandset.append(data_dict)
 
@@ -224,3 +243,27 @@ class ModelMain(object):
         bx.plot_surface(X2, Y2, fileted, cmap='bwr')
 
         plt.show()
+
+
+
+    # 2点間の距離の算出 - OK
+    def GlobalDistance(self, pos1, pos2):
+        R = 6378.1370
+        
+        lat1 = math.radians(pos1[0])
+        long1 = math.radians(pos1[1])
+        lat2 = math.radians(pos2[0])
+        long2 = math.radians(pos2[1])
+
+        averageLat = (lat1 - lat2) / 2
+        averageLong = (long1 - long2) / 2
+
+        return R * 2 * math.asin( math.sqrt(math.pow( math.sin(averageLat), 2) + math.cos(lat1) * math.cos(lat2) * math.pow( math.sin(averageLong), 2)))
+
+    # 角度の算出
+    def AngularDifference(self, predict, real):
+        Y = real[0] - predict[0]
+        X = real[1] - predict[1]
+        if X == 0.0:
+            return np.pi / 2 if Y > 0 else - np.pi / 2
+        return np.arctan2(Y, X)

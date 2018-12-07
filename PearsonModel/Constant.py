@@ -21,6 +21,11 @@ class Const(object):
     PLOT_INTARVAL_LAT = 0.1
     PLOT_INTARVAL_LONG = 0.1
     PLOT_START_LAT = 20
-    PLOT_END_LAT = 45
+    PLOT_END_LAT = 50
     PLOT_START_LONG = 120
     PLOT_END_LONG = 150
+
+    # 誤差修正関係
+    DistanceError_6h_12h = 2.1081
+    # DistanceError_6h_12h = 2.33590
+    K = -29.9565

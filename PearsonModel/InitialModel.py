@@ -68,6 +68,9 @@ class ModelMain(object):
     def getPredictPosition(self):
         return self.field.getAverage()
 
+    def getPredictMovement(self):
+        return self.movement
+
     def getSampleDataNum(self):
         return self.sampleData
     
@@ -77,8 +80,9 @@ class ModelMain(object):
     # 確率場の算出用
     def __getProbabilityField__(self):
         ave, var = self.__getMoveStat__()
-        ave = [ave[0] + self.position[0], ave[1] + self.position[1]]
-        self.field = pf.ProbabilityField(ave, var)
+        self.movement = ave
+        prediction = [ave[0] + self.position[0], ave[1] + self.position[1]]
+        self.field = pf.ProbabilityField(prediction, var)
 
     # 過去台風のロード部分 - OK
     def __getStatisticTyphoon__(self):

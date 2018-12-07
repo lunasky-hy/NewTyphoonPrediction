@@ -14,3 +14,9 @@ class ProbabilityField():
                 -0.5 * (((lat - self.lat_ave)**2.0) / self.lat_var + ((long - self.long_ave)**2.0) / self.long_var)
                 )
         return value #if value > 0.01 else 0
+
+    def getAverage(self):
+        return [self.lat_ave, self.long_ave]
+
+    def getVariance(self):
+        return [self.lat_var, self.long_var]

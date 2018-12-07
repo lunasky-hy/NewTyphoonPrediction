@@ -3,7 +3,7 @@ import numpy as np
 
 class Const(object):
 
-    TARGET_BAND = [ [100000, 'Geopotential'], [50000, 'u-'], [50000, 'v-'] ]
+    TARGET_BAND = [ [50000, 'Geopotential'], [30000, 'u-'], [30000, 'v-'] ]
 
     # 過去台風の取り出し
     STATISTIC_DISTANCE = 300 # 現在の台風の中心から300km以内
@@ -11,7 +11,7 @@ class Const(object):
 
     # フィルタリング
     FILTERING_EDGE = [[47, 120], [23, 150]]     # 北緯47 東経120からフィルタリング開始
-    FILTERING_INTERVAL = 1  # 単位:°
+    FILTERING_INTERVAL = 2  # 単位:°
     N = 3                   # 中心の周囲Nマスを参照
     
     CONVERTED_LATITUDE = np.arange(FILTERING_EDGE[0][0], FILTERING_EDGE[1][0] - FILTERING_INTERVAL, -1 * FILTERING_INTERVAL)
@@ -24,3 +24,6 @@ class Const(object):
     PLOT_END_LAT = 45
     PLOT_START_LONG = 120
     PLOT_END_LONG = 150
+    
+    # 誤差修正関係
+    DistanceError_6h_12h = 2.1081
