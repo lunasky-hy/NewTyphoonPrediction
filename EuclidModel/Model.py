@@ -102,6 +102,7 @@ class ModelMain(object):
             print(str(len(self.statisticTyphoons)) + ':' + str(info['GPVfile']))
 
         print('Sample : ' + str(len(self.statisticTyphoons)))
+        self.sampleData = len(self.statisticTyphoons)
 
     # 平均,分散の算出 - OK
     def __getMoveStat__(self):

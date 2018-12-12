@@ -86,7 +86,7 @@ def main():
     Map = pm.PredictMap([23.7 , 135.0], [m])
     Map.showOriginals([[23.7 , 135.0], [24.5 , 134.4], m.getPrediction(6), m.predictionUpdate(), m.getPrediction(12)], ['black', 'gray', 'Green', 'Red', 'Blue'])
 
-main()
+# main()
 # import DataProcessing.AnaliticsModelData
 
-# import DataProcessing.ModelErrorAnalizing
+import DataProcessing.ModelErrorAnalizing

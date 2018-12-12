@@ -101,16 +101,16 @@ def main():
         model12.processing()
 
         
-        xmodel0 = EModel.ModelMain('SampleData/TempData.bin', [data['latitude'], data['longitude']])
-        xmodel0.processing()
+        #xmodel0 = EModel.ModelMain('SampleData/TempData.bin', [data['latitude'], data['longitude']])
+        #xmodel0.processing()
 
-        position = xmodel0.getPredictPosition()
-        xmodel6 = EModel.ModelMain('SampleData/TempData.bin', position, init_time = 6)
-        xmodel6.processing()
+        #position = xmodel0.getPredictPosition()
+        #xmodel6 = EModel.ModelMain('SampleData/TempData.bin', position, init_time = 6)
+        #xmodel6.processing()
         
-        position = xmodel6.getPredictPosition()
-        xmodel12 = EModel.ModelMain('SampleData/TempData.bin', position, init_time = 12)
-        xmodel12.processing()
+        #position = xmodel6.getPredictPosition()
+        #xmodel12 = EModel.ModelMain('SampleData/TempData.bin', position, init_time = 12)
+        #xmodel12.processing()
 
         ######################## Pearson's Calc
         rows = []
@@ -158,7 +158,7 @@ def main():
         rows.append(model0.GlobalDistance(predictUp, real12))   # 25
 
         analysis_data.append(rows)
-        
+        """
         ######################## Euclid's Calc
         rows2 = []
         rows2.append(data['latitude'])   # 0
@@ -202,15 +202,18 @@ def main():
         rows2.append(predictUp[0])   # 23
         rows2.append(predictUp[1])   # 24
         rows2.append(xmodel0.GlobalDistance(predictUp, real12))   # 25
-
+        
+        analysis_data2.append(rows2)
+        """
         del(model0)
         del(model6)
         del(model12)
-        del(xmodel0)
-        del(xmodel6)
-        del(xmodel12)
+        #del(xmodel0)
+        #del(xmodel6)
+        #del(xmodel12)
         del(m)
         
+        print('Num: ' + str((2070 - int(index) - 1) / 5))
         print('Remaining... ' + str((time.time() - check) * (2070 - int(index) - 1) / 5))
         check = time.time()
 
@@ -277,7 +280,8 @@ def main():
     
     
     print(len(analysis_data))
-    np.savetxt('typhoon/out.csv', np.array(analysis_data), delimiter=",")
+    np.savetxt('typhoon/outPearson.csv', np.array(analysis_data), delimiter=",")
+    #np.savetxt('typhoon/outEuclid.csv', np.array(analysis_data2), delimiter=",")
     """
     x1 = []
     y1 = []
