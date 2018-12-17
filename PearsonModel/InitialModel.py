@@ -75,7 +75,7 @@ class ModelMain(object):
         return self.sampleData
     
     def calcProbability(self, y, x):
-        return self.field.calc(y, x) * Const.PLOT_INTARVAL_LONG * Const.PLOT_INTARVAL_LAT
+        return self.field.calc(y, x)
 
     # 確率場の算出用
     def __getProbabilityField__(self):

@@ -18,6 +18,23 @@ class ModelMain(object):
         update_pos = self.__updatePostion__(errors, predict_pos)
         return update_pos
 
+    # 通常の更新（predictionUpdate）に加え、6-12hの移動量予測を実況にあてはめ（平行移動）させたものを平均化
+    def predictionUpdate_2(self):
+        up_pos = self.predictionUpdate()
+
+        try:
+            predict_now_pos = np.array([self.prediction[str(self.time) + 'h']['latitude'], self.prediction[str(self.time) + 'h']['longitude']])
+            predict_next_pos = np.array([self.prediction[str(self.time + 6) + 'h']['latitude'], self.prediction[str(self.time + 6) + 'h']['longitude']])
+
+            movement = predict_next_pos - predict_now_pos
+            up2_pos = np.array(self.real) + movement
+            
+            return (up_pos + up2_pos) / 2.0
+
+        except:
+            print('No key... Please predict next time by initModel')
+            return
+
     def getPrediction(self, time):
         return [self.prediction[str(time) + 'h']['latitude'], self.prediction[str(time) + 'h']['longitude']]
 
@@ -25,14 +42,15 @@ class ModelMain(object):
         return self.predictionUpdate()
 
     def __updatePostion__(self, errors, predict):
-        error_next = errors[0] * Const.DistanceError_6h_12h
-        lat_error = error_next * math.sin(errors[1]) / 110.94297
+        lat_error = (errors[0] * math.sin(errors[1]) * Const.LatDistError6_12h) / 110.94297
 
         long_1deg_distance = math.cos(math.radians(predict[0])) * 2 * math.pi * 6378.137 / 360
-        long_error = error_next * math.cos(errors[1]) / long_1deg_distance
+        long_error = (errors[0] * math.cos(errors[1]) * Const.LongDistError6_12h) / long_1deg_distance
 
         return [predict[0] + lat_error, predict[1] + long_error]
-        
+    
+
+
     # 2点間の距離の算出 - OK
     def __GlobalDistance__(self, pos1, pos2):
         R = 6378.1370

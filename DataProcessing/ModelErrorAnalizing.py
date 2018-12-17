@@ -12,7 +12,7 @@ import EuclidModel.Model as EModel
 import General.UpdateModel as UModel
 import General.PredictMap as pm
 
-def download(yy, mm, dd, hh):
+def download(yy, mm, dd, hh, filename):
     mm_str = mm if len(mm) != 1 else '0' + mm
     dd_str = dd if len(dd) != 1 else '0' + dd
     time = str(hh) if len(str(hh)) == 2 else '0' + str(hh)
@@ -23,7 +23,7 @@ def download(yy, mm, dd, hh):
     dates_nonsplitter = yy + mm_str + dd_str
 
     print(dates + '/Z__C_RJTD_' + dates_nonsplitter + time +'0000_MSM_GPV_Rjp_L-pall_FH00-15_grib2.bin')
-    fname = 'SampleData/TempData.bin'
+    fname = filename
     try:
         urllib.request.urlretrieve(url + dates + '/Z__C_RJTD_' + dates_nonsplitter + time +'0000_MSM_GPV_Rjp_L-pall_FH00-15_grib2.bin', filename = fname)
     except:
@@ -55,20 +55,15 @@ def main():
         flag = 0
         real06 = []
         real12 = []
-        real18 = []
         typhoons = np.loadtxt('typhoon/table' + str(data['year']) + '.csv', dtype = str, delimiter = ",", skiprows = 1)
         for row in typhoons:
             if row[4] != data['number']:
                 continue
-            if flag == 3:
-                real18.append(float(row[7]))
-                real18.append(float(row[8]))
-                skips = 5
-                break
             if flag == 2:
                 real12.append(float(row[7]))
                 real12.append(float(row[8]))
-                flag = 3
+                skips = 5
+                break
             if flag == 1:
                 real06.append(float(row[7]))
                 real06.append(float(row[8]))
@@ -77,85 +72,81 @@ def main():
                 flag = 1
                 print(row)
 
-        if len(real06) != 2 or len(real12) != 2 or len(real18) != 2:
+        # if len(real06) != 2 or len(real12) != 2 or len(real18) != 2:
+        if len(real06) != 2 or len(real12) != 2:
             continue
 
-        
-        download(str(data['year']), str(data['month']), str(data['day']), str(data['hour']))
-        model0 = PModel.ModelMain('SampleData/TempData.bin', [data['latitude'], data['longitude']])
-        #model0 = AModel.AnalysisPredictErrorModel([data['latitude'], data['longitude']])
+        filename = 'Simulate/' + str(data['year']) + 'M' +str(data['month']) + 'D' + str(data['day']) + 'h' + str(data['hour']) + '.bin'
+        download(str(data['year']), str(data['month']), str(data['day']), str(data['hour']), filename)
+
+        model0 = PModel.ModelMain(filename, [data['latitude'], data['longitude']])
         model0.processing()
 
         position = model0.getPredictPosition()
         if not (22.4 < float(position[0]) and float(position[0]) < 47.6 and 120 < float(position[1]) and float(position[1]) < 150):
             continue
-        model6 = PModel.ModelMain('SampleData/TempData.bin', position, init_time = 6)
-        #model6 = AModel.AnalysisPredictErrorModel(model0.getPredictPosition(), init_time = 6)
+        model6 = PModel.ModelMain(filename, position, init_time = 6)
         model6.processing()
-        
-        position = model6.getPredictPosition()
+
+        position = real06
         if not (22.4 < float(position[0]) and float(position[0]) < 47.6 and 120 < float(position[1]) and float(position[1]) < 150):
             continue
-        model12 = PModel.ModelMain('SampleData/TempData.bin', position, init_time = 12)
-        #model12 = AModel.AnalysisPredictErrorModel(model6.getPredictPosition(), init_time = 12)
-        model12.processing()
-
-        
-        #xmodel0 = EModel.ModelMain('SampleData/TempData.bin', [data['latitude'], data['longitude']])
-        #xmodel0.processing()
-
-        #position = xmodel0.getPredictPosition()
-        #xmodel6 = EModel.ModelMain('SampleData/TempData.bin', position, init_time = 6)
-        #xmodel6.processing()
-        
-        #position = xmodel6.getPredictPosition()
-        #xmodel12 = EModel.ModelMain('SampleData/TempData.bin', position, init_time = 12)
-        #xmodel12.processing()
+        model_next = PModel.ModelMain(filename, position, init_time = 6)
+        model_next.processing()
 
         ######################## Pearson's Calc
         rows = []
         # 0h
-        rows.append(data['latitude'])   # 0
-        rows.append(data['longitude'])   # 1
+        rows.append(data['latitude'])   # 0 A
+        rows.append(data['longitude'])   # 1 B
 
         # 6h
         predict = model0.getPredictPosition()
-        rows.append(predict[0])   # 2
-        rows.append(predict[1])   # 3
-        rows.append(real06[0])   # 4
-        rows.append(real06[1])   # 5
-        rows.append(model0.GlobalDistance(predict, real06))   # 6
-        rows.append(model0.AngularDifference(predict, real06))   # 7
-        rows.append(model0.getSampleDataNum())   # 8
+        rows.append(predict[0])   # 2 C
+        rows.append(predict[1])   # 3 D
+        rows.append(real06[0])   # 4 E
+        rows.append(real06[1])   # 5 F
+        rows.append(model0.GlobalDistance(predict, real06))   # 6 G
+        rows.append(model0.AngularDifference(predict, real06))   # 7 H
+        rows.append(model0.getSampleDataNum())   # 8 I
 
         # 12h
         predict2 = model6.getPredictPosition()
-        rows.append(predict2[0])   # 9
-        rows.append(predict2[1])   # 10
-        rows.append(real12[0])   # 11
-        rows.append(real12[1])   # 12
-        rows.append(model6.GlobalDistance(predict2, real12))   # 13
-        rows.append(model6.AngularDifference(predict2, real12))   # 14
-        rows.append(model6.getSampleDataNum())   # 15
-        
-        # 18h
-        predict3 = model12.getPredictPosition()
-        rows.append(predict3[0])   # 16
-        rows.append(predict3[1])   # 17
-        rows.append(real18[0])   # 18
-        rows.append(real18[1])   # 19
-        rows.append(model12.GlobalDistance(predict3, real18))   # 20
-        rows.append(model12.AngularDifference(predict3, real18))   # 21
-        rows.append(model12.getSampleDataNum())   # 22
+        rows.append(predict2[0])   # 9 J
+        rows.append(predict2[1])   # 10 K
+        rows.append(real12[0])   # 11 L
+        rows.append(real12[1])   # 12 M
+        rows.append(model6.GlobalDistance(predict2, real12))   # 13 N
+        rows.append(model6.AngularDifference(predict2, real12))   # 14 O
+        rows.append(model6.getSampleDataNum())   # 15 P
+
+        # 6h Later Model
+        predict_next = model_next.getPredictPosition()
+        rows.append(predict_next[0])   # 16 Q
+        rows.append(predict_next[1])   # 17 R
+        rows.append(real12[0])   # 18 S
+        rows.append(real12[1])   # 19 T
+        rows.append(model_next.GlobalDistance(predict_next, real12))   # 20 U
+        rows.append(model_next.AngularDifference(predict_next, real12))   # 21 V
+        rows.append(model_next.getSampleDataNum())   # 22 W
 
         # Update
-        Map = pm.PredictMap([data['latitude'], data['longitude']], [model0, model6, model12])
+        Map = pm.PredictMap([data['latitude'], data['longitude']], [model0, model6])
         Map.save('SampleData/Predict')
+
         m = UModel.ModelMain(real06, 'SampleData/Predict.json', 6)
         predictUp = m.predictionUpdate()
-        rows.append(predictUp[0])   # 23
-        rows.append(predictUp[1])   # 24
-        rows.append(model0.GlobalDistance(predictUp, real12))   # 25
+        rows.append(predictUp[0])   # 23 X
+        rows.append(predictUp[1])   # 24 Y
+        rows.append(model0.GlobalDistance(predictUp, real12))   # 25 Z
+        rows.append(model0.AngularDifference(predictUp, real12))   # 26 AA
+
+        predictUp2 = m.predictionUpdate_2()
+        rows.append(predictUp2[0])   # 27 AB
+        rows.append(predictUp2[1])   # 28 AC
+        rows.append(model0.GlobalDistance(predictUp2, real12))   # 29 AD
+        rows.append(model0.AngularDifference(predictUp2, real12))   # 30 AE
+
 
         analysis_data.append(rows)
         """
@@ -207,10 +198,6 @@ def main():
         """
         del(model0)
         del(model6)
-        del(model12)
-        #del(xmodel0)
-        #del(xmodel6)
-        #del(xmodel12)
         del(m)
         
         print('Num: ' + str((2070 - int(index) - 1) / 5))
@@ -281,7 +268,6 @@ def main():
     
     print(len(analysis_data))
     np.savetxt('typhoon/outPearson.csv', np.array(analysis_data), delimiter=",")
-    #np.savetxt('typhoon/outEuclid.csv', np.array(analysis_data2), delimiter=",")
     """
     x1 = []
     y1 = []
