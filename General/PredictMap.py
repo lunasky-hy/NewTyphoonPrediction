@@ -23,20 +23,18 @@ class PredictMap(object):
         Y = np.arange(Const.PLOT_START_LAT, Const.PLOT_END_LAT + Const.PLOT_INTARVAL_LAT, Const.PLOT_INTARVAL_LAT)
         values = np.zeros([len(Y), len(X)])
 
-        max = [0, 0]
         for lat in range(len(Y)):
             for long in range(len(X)):
                 for model in self.models:
                     val = model.calcProbability(Y[lat], X[long])
                     if values[lat, long] == 0:
                         values[lat, long] = val
-                    if values[lat, long] > values[max[0], max[1]]:
-                        max[0] = lat
-                        max[1] = long
 
+        center = self.models[0].getPredictPosition()
         temp = 0.0
         for long in range(len(X)):
-            temp += values[max[0], long]# * Const.PLOT_INTARVAL_LAT * PLOT_INTARVAL_LONG
+            temp += Const.PLOT_INTARVAL_LONG / 6 * (
+                self.models[0].calcProbability(center[0], X[long]) + 4 *self.models[0].calcProbability(center[0], X[long] + Const.PLOT_INTARVAL_LONG / 2) * self.models[0].calcProbability(center[0], X[long] + Const.PLOT_INTARVAL_LONG))
 
         print(temp)
         m = Basemap(projection = 'merc',
@@ -69,7 +67,7 @@ class PredictMap(object):
         plt.title("Probability Field")
         plt.show()
 
-    def showOriginals(self, positionArray, colors):
+    def showOriginals(positionArray, colors, marker = 'x'):
         fig = plt.figure()
         
         X = np.arange(Const.PLOT_START_LONG, Const.PLOT_END_LONG + Const.PLOT_INTARVAL_LONG, Const.PLOT_INTARVAL_LONG)
@@ -91,7 +89,7 @@ class PredictMap(object):
 
         for index, pos in enumerate(positionArray):
             x, y = m(pos[1], pos[0])
-            m.plot(x, y, 'x', markersize = 6, color = colors[index])
+            m.plot(x, y, marker, markersize = 6, color = colors[index])
         
         plt.show()
 

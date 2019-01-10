@@ -77,7 +77,7 @@ def main():
             continue
 
         filename = 'Simulate/' + str(data['year']) + 'M' +str(data['month']) + 'D' + str(data['day']) + 'h' + str(data['hour']) + '.bin'
-        download(str(data['year']), str(data['month']), str(data['day']), str(data['hour']), filename)
+        # download(str(data['year']), str(data['month']), str(data['day']), str(data['hour']), filename)
 
         model0 = PModel.ModelMain(filename, [data['latitude'], data['longitude']])
         model0.processing()
@@ -321,4 +321,118 @@ def main():
     plt.show()
     """
 
-main()
+def main2():
+
+    analysis_data = []
+    data = np.loadtxt('typhoon/table2018.csv', dtype = str, delimiter = ",", skiprows = 1)
+
+    n = 0
+    
+    for index, row in enumerate(data):
+        if index + 2 >= len(data):
+            break
+
+        if not (22.4 < float(row[7]) and float(row[7]) < 47.6 and 120 < float(row[8]) and float(row[8]) < 150):
+            continue
+
+        if not (row[4] == data[index + 1][4] and (int(row[3]) + 6) % 24 == int(data[index + 1][3])):
+            continue
+        
+        if not (row[4] == data[index + 2][4] and (int(row[3]) + 12) % 24 == int(data[index + 2][3])):
+            continue
+
+        n += 1
+
+    print(n)
+
+
+    for index, row in enumerate(data):
+        if index + 2 >= len(data):
+            break
+
+        if index != 435:
+            continue
+
+        if not (22.4 < float(row[7]) and float(row[7]) < 47.6 and 120 < float(row[8]) and float(row[8]) < 150):
+            continue
+
+        if not (row[4] == data[index + 1][4] and (int(row[3]) + 6) % 24 == int(data[index + 1][3])):
+            continue
+        
+        if not (row[4] == data[index + 2][4] and (int(row[3]) + 12) % 24 == int(data[index + 2][3])):
+            continue
+
+
+        # file download
+        filename = 'Simulate/' + row[0] + 'M' + row[1] + 'D' + row[2] + 'h' + row[3] + '.bin'
+        #download(row[0], row[1], row[2], row[3], filename)
+
+        # 0h -> 6h predict
+        model0 = PModel.ModelMain(filename, [float(row[7]), float(row[8])])
+        model0.processing()
+
+        position = model0.getPredictPosition()
+        if not (22.4 < float(position[0]) and float(position[0]) < 47.6 and 120 < float(position[1]) and float(position[1]) < 150):
+            continue
+
+        # 6h -> 12h predict
+        model6 = PModel.ModelMain(filename, position, init_time = 6)
+        model6.processing()
+        
+        real06 = [float(data[index + 1][7]), float(data[index + 1][8])]
+        real12 = [float(data[index + 2][7]), float(data[index + 2][8])]
+        rows = []
+
+        # 0h
+        rows.append(float(row[7]))   # 0 A
+        rows.append(float(row[8]))   # 1 B
+
+        # 6h
+        predict = model0.getPredictPosition()
+        rows.append(predict[0])   # 2 C
+        rows.append(predict[1])   # 3 D
+        rows.append(real06[0])   # 4 E
+        rows.append(real06[1])   # 5 F
+        rows.append(model0.GlobalDistance(predict, real06))   # 6 G
+        rows.append(model0.AngularDifference(predict, real06))   # 7 H
+        rows.append(model0.getSampleDataNum())   # 8 I
+
+        # 12h
+        predict2 = model6.getPredictPosition()
+        rows.append(predict2[0])   # 9 J
+        rows.append(predict2[1])   # 10 K
+        rows.append(real12[0])   # 11 L
+        rows.append(real12[1])   # 12 M
+        rows.append(model6.GlobalDistance(predict2, real12))   # 13 N
+        rows.append(model6.AngularDifference(predict2, real12))   # 14 O
+        rows.append(model6.getSampleDataNum())   # 15 P
+
+        # Update
+        Map = pm.PredictMap([float(row[7]), float(row[8])], [model0, model6])
+        Map.save('SampleData/Predict')
+
+        m = UModel.ModelMain([float(data[index + 1][7]), float(data[index + 1][8])], 'SampleData/Predict.json', 6)
+        predictUp = m.predictionUpdate()
+        rows.append(predictUp[0])   # 16 Q
+        rows.append(predictUp[1])   # 17 R
+        rows.append(model0.GlobalDistance(predictUp, real12))   # 18 S
+        rows.append(model0.AngularDifference(predictUp, real12))   # 19 T
+
+        predictUp2 = m.predictionUpdate_2()
+        rows.append(predictUp2[0])   # 20 U
+        rows.append(predictUp2[1])   # 21 V
+        rows.append(model0.GlobalDistance(predictUp2, real12))   # 22 W
+        rows.append(model0.AngularDifference(predictUp2, real12))   # 23 X
+
+        rows.append(index)
+        
+        analysis_data.append(rows)
+        del(model0)
+        del(model6)
+        del(m)
+
+    print(len(analysis_data))
+    #np.savetxt('typhoon/out2018.csv', np.array(analysis_data), delimiter=",")
+
+# main()
+main2()
