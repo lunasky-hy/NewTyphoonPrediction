@@ -132,9 +132,9 @@ def main():
 
         # Update
         Map = pm.PredictMap([data['latitude'], data['longitude']], [model0, model6])
-        Map.save('SampleData/Predict')
+        Map.save('SampleData/Predict_sub')
 
-        m = UModel.ModelMain(real06, 'SampleData/Predict.json', 6)
+        m = UModel.ModelMain(real06, 'SampleData/Predict_sub.json', 6)
         predictUp = m.predictionUpdate()
         rows.append(predictUp[0])   # 23 X
         rows.append(predictUp[1])   # 24 Y
@@ -265,9 +265,8 @@ def main():
         del(model6)
     """
     
-    
     print(len(analysis_data))
-    np.savetxt('typhoon/outPearson.csv', np.array(analysis_data), delimiter=",")
+    np.savetxt('typhoon/outPearson_re.csv', np.array(analysis_data), delimiter=",")
     """
     x1 = []
     y1 = []
@@ -350,9 +349,6 @@ def main2():
         if index + 2 >= len(data):
             break
 
-        if index != 435:
-            continue
-
         if not (22.4 < float(row[7]) and float(row[7]) < 47.6 and 120 < float(row[8]) and float(row[8]) < 150):
             continue
 
@@ -432,7 +428,7 @@ def main2():
         del(m)
 
     print(len(analysis_data))
-    #np.savetxt('typhoon/out2018.csv', np.array(analysis_data), delimiter=",")
+    np.savetxt('typhoon/out2018_re.csv', np.array(analysis_data), delimiter=",")
 
-# main()
-main2()
+main()
+#main2()

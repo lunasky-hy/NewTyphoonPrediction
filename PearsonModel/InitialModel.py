@@ -17,15 +17,15 @@ class ModelMain(object):
             
         self.position = position
         self.time = init_time
-        print("Loading")
+        print("Loading Target Typhoon...")
         self.__loadGPV__(GPVfile, Const.TARGET_BAND)
-        print("Loading... Complete")
+        print("Loading Target Typhoon... Complete")
 
     def processing(self):
-        print("Statistic Typhoon Loading...")
+        print("Loading Statistic Typhoon...")
         self.__getStatisticTyphoon__()
-        print("Statistic Typhoon Loading... Complete")
-        print("Create Probability Field...")
+        print("Loading Statistic Typhoon... Complete")
+        print("Predict Typhoon Course...")
         self.__getProbabilityField__()
         print('Finish Processing')
 
@@ -113,17 +113,27 @@ class ModelMain(object):
                     INDEXES.append([latIndex, longIndex])
         
         total = 0.0
+        num = 0
         # 比較し係数を過去モデルに保存
         for index, smodel in enumerate(self.statisticTyphoons):
             for bandIndex in range(len(smodel.dataset)):
                 smodel.calcAnalogy(self.bandset, bandIndex, INDEXES)
-            total += smodel.aveAnalogy()
+
+            if smodel.aveAnalogy() > 0:
+                total += smodel.getAveAnalogy()
+                num += 1
+
             #total += np.exp(smodel.aveAnalogy() * 10)
             print(str(index) + " : " + str(smodel.getAveAnalogy() * 100) + '%')
 
+        print("Use statistic typhoon: " + str(num))
+        self.sampleData = num
         ave = [0.0, 0.0]
         var = [0.0, 0.0]
         for smodel in self.statisticTyphoons:
+            if smodel.getAveAnalogy() <= 0:
+                continue
+
             move = smodel.getMovement()
             ave[0] += (smodel.getAveAnalogy() / total) * move[0]
             ave[1] += (smodel.getAveAnalogy() / total) * move[1]
@@ -131,6 +141,9 @@ class ModelMain(object):
             # ave[1] += (np.exp(smodel.getAveAnalogy() * 10) / total) * move[1]
 
         for smodel in self.statisticTyphoons:
+            if smodel.getAveAnalogy() <= 0:
+                continue
+
             move = smodel.getMovement()
             var[0] += (move[0] - ave[0]) ** 2.0
             var[1] += (move[1] - ave[1]) ** 2.0

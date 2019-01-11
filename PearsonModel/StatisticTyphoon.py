@@ -39,6 +39,7 @@ class StatisticTyphoon(object):
     # 類似度の平均の算出 - OK
     def aveAnalogy(self):
         self.analogy = np.average(self.analogies)
+        print(self.analogies)
         return self.analogy
 
     def getAveAnalogy(self):
