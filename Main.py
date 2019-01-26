@@ -66,9 +66,9 @@ def PDF():
     import PearsonModel.ProbabilityField as pf
 
     center = [0, 0]
-    var = [1, 5]
+    var = [5, 10]
     f = pf.ProbabilityField(center, var)
-    
+    """
     P = 0.5
     d = 0.05
     tmp = 0.0
@@ -92,7 +92,20 @@ def PDF():
 
     print(y)
     print(integral(f, 1, 0, y, 0, d)*4)
-    
+    """
+
+    r = 0
+    d = 0.1
+    val = 0.0
+    while(val * 4 < 0.7):
+        val = 0.0
+        r += d
+        for x in np.arange(0, r, d):
+            for y in np.arange(0, np.sqrt(r**2 - x**2), d):
+                val += f.calc(x, y) * d * d
+                
+        print(val * 4)
+    print(r)
 
     """
         tmp += f.calc(center[0], y) * d

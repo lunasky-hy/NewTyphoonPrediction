@@ -77,6 +77,9 @@ class ModelMain(object):
     def calcProbability(self, y, x):
         return self.field.calc(y, x)
 
+    def getRadius(self, probability):
+        return self.field.getProbableRadius(probability)
+
     # 確率場の算出用
     def __getProbabilityField__(self):
         ave, var = self.__getMoveStat__()
@@ -119,7 +122,7 @@ class ModelMain(object):
             for bandIndex in range(len(smodel.dataset)):
                 smodel.calcAnalogy(self.bandset, bandIndex, INDEXES)
 
-            if smodel.aveAnalogy() > 0:
+            if smodel.aveAnalogy() >= 0:
                 total += smodel.getAveAnalogy()
                 num += 1
 
@@ -131,7 +134,7 @@ class ModelMain(object):
         ave = [0.0, 0.0]
         var = [0.0, 0.0]
         for smodel in self.statisticTyphoons:
-            if smodel.getAveAnalogy() <= 0:
+            if smodel.getAveAnalogy() < 0:
                 continue
 
             move = smodel.getMovement()
@@ -141,7 +144,7 @@ class ModelMain(object):
             # ave[1] += (np.exp(smodel.getAveAnalogy() * 10) / total) * move[1]
 
         for smodel in self.statisticTyphoons:
-            if smodel.getAveAnalogy() <= 0:
+            if smodel.getAveAnalogy() < 0:
                 continue
 
             move = smodel.getMovement()

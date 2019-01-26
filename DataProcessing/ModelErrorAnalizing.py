@@ -346,6 +346,10 @@ def main2():
 
 
     for index, row in enumerate(data):
+        print(index)
+
+        print(row[1])
+
         if index + 2 >= len(data):
             break
 
@@ -426,9 +430,91 @@ def main2():
         del(model0)
         del(model6)
         del(m)
-
+    
     print(len(analysis_data))
-    np.savetxt('typhoon/out2018_re.csv', np.array(analysis_data), delimiter=",")
+    np.savetxt('typhoon/out2018_rere.csv', np.array(analysis_data), delimiter=",")
 
-main()
+def main3():
+
+    analysis_data = []
+    data = np.loadtxt('typhoon/table2018.csv', dtype = str, delimiter = ",", skiprows = 1)
+
+    n = 0
+    
+    for index, row in enumerate(data):
+        if index + 2 >= len(data):
+            break
+
+        if not (22.4 < float(row[7]) and float(row[7]) < 47.6 and 120 < float(row[8]) and float(row[8]) < 150):
+            continue
+
+        if not (row[4] == data[index + 1][4] and (int(row[3]) + 6) % 24 == int(data[index + 1][3])):
+            continue
+        
+        if not (row[4] == data[index + 2][4] and (int(row[3]) + 12) % 24 == int(data[index + 2][3])):
+            continue
+
+        n += 1
+
+    print(n)
+
+    n = 0
+    for index, row in enumerate(data):
+        print(index)
+
+        print(row[1])
+
+        if index + 2 >= len(data):
+            break
+
+        if not (22.4 < float(row[7]) and float(row[7]) < 47.6 and 120 < float(row[8]) and float(row[8]) < 150):
+            continue
+
+        if not (row[4] == data[index + 1][4] and (int(row[3]) + 6) % 24 == int(data[index + 1][3])):
+            continue
+        
+        if not (row[4] == data[index + 2][4] and (int(row[3]) + 12) % 24 == int(data[index + 2][3])):
+            continue
+
+        # file download
+        filename = 'Simulate/' + row[0] + 'M' + row[1] + 'D' + row[2] + 'h' + row[3] + '.bin'
+        #download(row[0], row[1], row[2], row[3], filename)
+
+        # 0h -> 6h predict
+        model0 = PModel.ModelMain(filename, [float(row[7]), float(row[8])])
+        model0.processing()
+
+        position = model0.getPredictPosition()
+        
+        real06 = [float(data[index + 1][7]), float(data[index + 1][8])]
+        rows = []
+
+        # 0h
+        rows.append(float(row[7]))   # 0 A
+        rows.append(float(row[8]))   # 1 B
+
+        # 6h
+        predict = model0.getPredictPosition()
+        rows.append(predict[0])   # 2 C
+        rows.append(predict[1])   # 3 D
+        rows.append(real06[0])   # 4 E
+        rows.append(real06[1])   # 5 F
+        rows.append(model0.GlobalDistance(predict, real06))   # 6 G
+        rows.append(model0.AngularDifference(predict, real06))   # 7 H
+        r = model0.getRadius(0.7)
+        rows.append(model0.GlobalDistance(predict, [predict[0] + r, predict[1] + r]))
+        rows.append(model0.getSampleDataNum())   # 8 I
+
+        rows.append(index)
+        
+        analysis_data.append(rows)
+        del(model0)
+    
+    print(len(analysis_data))
+    np.savetxt('typhoon/out2018_rerere.csv', np.array(analysis_data), delimiter=",")
+
+#main()
+
 #main2()
+
+main3()
