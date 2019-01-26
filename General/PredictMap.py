@@ -23,6 +23,23 @@ class PredictMap(object):
         Y = np.arange(Const.PLOT_START_LAT, Const.PLOT_END_LAT + Const.PLOT_INTARVAL_LAT, Const.PLOT_INTARVAL_LAT)
         values = np.zeros([len(Y), len(X)])
 
+        plotProbable = [0.6, 0.7, 0.8, 0.9]
+        plotRadius = [0.0, 0.0, 0.0, 0.0]
+        for index, p in enumerate(plotProbable):
+            radius = self.models[0].getRadius(p)
+            predict = self.models[0].getPredictPosition()
+            plotRadius[index] = self.models[0].GlobalDistance(predict, [predict[0], predict[1] + radius])
+
+        
+        for lat in range(len(Y)):
+            for long in range(len(X)):
+                for index, radius in enumerate(plotRadius):
+                    if self.models[0].GlobalDistance(self.models[0].getPredictPosition(), [Y[lat], X[long]]) < radius:
+                        values[lat, long] = plotProbable[index]
+                        break
+
+
+        """
         for lat in range(len(Y)):
             for long in range(len(X)):
                 for model in self.models:
@@ -32,11 +49,13 @@ class PredictMap(object):
 
         center = self.models[0].getPredictPosition()
         temp = 0.0
-        for long in range(len(X)):
-            temp += Const.PLOT_INTARVAL_LONG / 6 * (
-                self.models[0].calcProbability(center[0], X[long]) + 4 *self.models[0].calcProbability(center[0], X[long] + Const.PLOT_INTARVAL_LONG / 2) * self.models[0].calcProbability(center[0], X[long] + Const.PLOT_INTARVAL_LONG))
+        #for long in range(len(X)):
+        #    temp += Const.PLOT_INTARVAL_LONG / 6 * (
+        #        self.models[0].calcProbability(center[0], X[long]) + 4 *self.models[0].calcProbability(center[0], X[long] + Const.PLOT_INTARVAL_LONG / 2) * self.models[0].calcProbability(center[0], X[long] + Const.PLOT_INTARVAL_LONG))
 
         print(temp)
+        """
+
         m = Basemap(projection = 'merc',
                  resolution = 'l',
                  llcrnrlon = Const.PLOT_START_LONG,
@@ -64,7 +83,9 @@ class PredictMap(object):
         m.contourf(axesX, axesY, values, cmap = 'Reds', alpha = 0.5)
         
 
-        plt.title("Probability Field")
+        #plt.title("Probability Field")
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
         plt.show()
 
     def showOriginals(positionArray, colors, marker = 'x'):

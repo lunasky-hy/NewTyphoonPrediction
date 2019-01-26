@@ -9,8 +9,8 @@ class Const(object):
     LongDistError6_12h = 1.285
 
     # プロット関係
-    PLOT_INTARVAL_LAT = 0.1
-    PLOT_INTARVAL_LONG = 0.1
+    PLOT_INTARVAL_LAT = 0.05
+    PLOT_INTARVAL_LONG = 0.05
     PLOT_START_LAT = 20
     PLOT_END_LAT = 50
     PLOT_START_LONG = 120

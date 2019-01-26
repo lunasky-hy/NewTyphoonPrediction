@@ -485,7 +485,7 @@ def main3():
         model0.processing()
 
         position = model0.getPredictPosition()
-        
+
         real06 = [float(data[index + 1][7]), float(data[index + 1][8])]
         rows = []
 
@@ -502,11 +502,15 @@ def main3():
         rows.append(model0.GlobalDistance(predict, real06))   # 6 G
         rows.append(model0.AngularDifference(predict, real06))   # 7 H
         r = model0.getRadius(0.7)
-        rows.append(model0.GlobalDistance(predict, [predict[0] + r, predict[1] + r]))
+        rows.append(model0.GlobalDistance(predict, [predict[0], predict[1] + r]))
         rows.append(model0.getSampleDataNum())   # 8 I
 
         rows.append(index)
-        
+
+        #import General.PredictMap as pm
+        #m = pm.PredictMap([float(row[7]), float(row[8])], [model0, model6])
+        #m.show()
+
         analysis_data.append(rows)
         del(model0)
     

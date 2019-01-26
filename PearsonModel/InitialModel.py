@@ -59,7 +59,8 @@ class ModelMain(object):
         # 5度ごとに経度線を描く
         m.drawmeridians(np.arange(Const.PLOT_START_LONG, Const.PLOT_END_LONG, 5), labels = [0, 0, 0, 1], fontsize=10)
         
-        x, y = m(135.0, 23.7)
+        predict = self.getPredictPosition()
+        x, y = m(predict[1], predict[0])
         m.plot(x, y, 'x', markersize = 5)
 
         plt.title("Pearson Model Probability Field")
