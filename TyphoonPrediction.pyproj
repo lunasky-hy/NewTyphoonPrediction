@@ -23,6 +23,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DataProcessing\AnaliticsModelData.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DataProcessing\ConvertGRIB2.py">
       <SubType>Code</SubType>
     </Compile>
@@ -36,13 +39,41 @@
     <Compile Include="DataProcessing\GRIB2.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DataProcessing\ModelErrorAnalizing.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EuclidModel\Constant.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EuclidModel\Model.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EuclidModel\ProbabilityField.py" />
+    <Compile Include="EuclidModel\StatisticTyphoon.py" />
+    <Compile Include="General\Constant.py" />
+    <Compile Include="General\PredictMap.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Main.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DataProcessing\ReadJSON.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PearsonModel\AnalysisPredictErrorModel.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PearsonModel\Constant.py" />
+    <Compile Include="PearsonModel\InitialModel.py" />
+    <Compile Include="PearsonModel\ProbabilityField.py" />
+    <Compile Include="PearsonModel\StatisticTyphoon.py" />
+    <Compile Include="General\UpdateModel.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SimpleModel\ModelMain.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SimpleModel\ProbabilityField.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SimpleModel\StatisticTyphoon.py">
@@ -51,6 +82,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataProcessing\" />
+    <Folder Include="EuclidModel\" />
+    <Folder Include="C:\Users\H.Yamada\source\repos\TyphoonPrediction\GetTyhoonDate\PearsonModel\" />
+    <Folder Include="General\" />
+    <Folder Include="PearsonModel\" />
     <Folder Include="SimpleModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
